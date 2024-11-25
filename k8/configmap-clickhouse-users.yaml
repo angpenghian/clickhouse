@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: clickhouse-users
+data:
+  users.xml: |
+    <clickhouse>
+      <profiles>
+          <!-- Default profile with increased memory and thread limits -->
+          <default>
+              <max_memory_usage>10737418240</max_memory_usage> <!-- 10 GB -->
+              <max_threads>16</max_threads> <!-- Matching your machine's core count -->
+          </default>
+
+          <!-- Read-only profile for restricted access -->
+          <readonly>
+              <readonly>1</readonly>
+          </readonly>
+      </profiles>
+
+      <users>
+          <!-- Default user -->
+          <default>
+              <!-- No password for easier local access (change if needed) -->
+              <password></password>
+
+              <!-- Open access from any IP -->
+              <networks>
+                  <ip>::/0</ip>
+              </networks>
+
+              <!-- Assigning default profile and quota -->
+              <profile>default</profile>
+              <quota>default</quota>
+
+              <!-- Full access and management permissions -->
+              <access_management>1</access_management>
+              <named_collection_control>1</named_collection_control>
+
+              <!-- Uncomment and configure grants if needed -->
+              <!--
+              <grants>
+                  <query>GRANT ALL ON *.*</query>
+              </grants>
+              -->
+          </default>
+      </users>
+
+      <quotas>
+          <default>
+              <interval>
+                  <duration>3600</duration> <!-- 1-hour interval -->
+                  <queries>0</queries> <!-- Unlimited queries -->
+                  <errors>0</errors>
+                  <result_rows>0</result_rows>
+                  <read_rows>0</read_rows>
+                  <execution_time>0</execution_time>
+              </interval>
+          </default>
+      </quotas>
+    </clickhouse>

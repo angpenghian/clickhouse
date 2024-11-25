@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  clickhouse:
+    build: .
+    ports:
+      - "8123:8123" # HTTP port for ClickHouse
+      - "9000:9000" # Native port for ClickHouse
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    command: ["./clickhouse", "server", "-C", "/etc/clickhouse-server/config.xml"]
+    # command: ["sleep", "infinity"]
+volumes:
+  clickhouse_data:

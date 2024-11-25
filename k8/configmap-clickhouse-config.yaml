@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: clickhouse-config
+data:
+  config.xml: |
+    <clickhouse>
+      <logger>
+          <level>trace</level>
+          <log>/var/log/clickhouse-server/clickhouse-server.log</log>
+          <errorlog>/var/log/clickhouse-server/clickhouse-server.err.log</errorlog>
+          <size>1000M</size>
+          <count>10</count>
+      </logger>
+
+      <http_port>8123</http_port>
+      <tcp_port>9000</tcp_port>
+
+      <listen_host>0.0.0.0</listen_host>
+
+      <max_connections>4096</max_connections>
+      <keep_alive_timeout>10</keep_alive_timeout>
+
+      <mlock_executable>true</mlock_executable>
+      <max_server_memory_usage_to_ram_ratio>0.85</max_server_memory_usage_to_ram_ratio>
+
+      <path>/var/lib/clickhouse/</path>
+      <tmp_path>/var/lib/clickhouse/tmp/</tmp_path>
+      <user_files_path>/var/lib/clickhouse/user_files/</user_files_path>
+
+      <default_profile>default</default_profile>
+      <default_database>default</default_database>
+
+      <dictionaries_lazy_load>true</dictionaries_lazy_load>
+      <wait_dictionaries_load_at_startup>false</wait_dictionaries_load_at_startup>
+
+      <user_directories>
+          <users_xml>
+              <path>/etc/clickhouse-server/users.xml</path>
+          </users_xml>
+          <local_directory>
+              <path>/var/lib/clickhouse/access/</path>
+          </local_directory>
+      </user_directories>
+
+      <query_log>
+          <database>system</database>
+          <table>query_log</table>
+          <partition_by>toYYYYMM(event_date)</partition_by>
+          <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+          <max_size_rows>1048576</max_size_rows>
+          <reserved_size_rows>8192</reserved_size_rows>
+      </query_log>
+
+      <trace_log>
+          <database>system</database>
+          <table>trace_log</table>
+          <partition_by>toYYYYMM(event_date)</partition_by>
+          <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+      </trace_log>
+
+      <metric_log>
+          <database>system</database>
+          <table>metric_log</table>
+          <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+          <collect_interval_milliseconds>1000</collect_interval_milliseconds>
+      </metric_log>
+
+      <max_concurrent_queries>1000</max_concurrent_queries>
+
+      <compression>
+          <case>
+              <min_part_size>10000000000</min_part_size>
+              <min_part_size_ratio>0.01</min_part_size_ratio>
+              <method>zstd</method>
+          </case>
+      </compression>
+
+      <distributed_ddl>
+          <path>/clickhouse/task_queue/ddl</path>
+      </distributed_ddl>
+
+      <graphite_rollup_example>
+          <pattern>
+              <regexp>click_cost</regexp>
+              <function>any</function>
+              <retention>
+                  <age>0</age>
+                  <precision>3600</precision>
+              </retention>
+          </pattern>
+          <default>
+              <function>max</function>
+              <retention>
+                  <age>0</age>
+                  <precision>60</precision>
+              </retention>
+          </default>
+      </graphite_rollup_example>
+    </clickhouse>

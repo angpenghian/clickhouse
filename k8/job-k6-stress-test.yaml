@@ -1,0 +1,29 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: k6-stress-test
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: k6
+    spec:
+      containers:
+        - name: k6
+          image: grafana/k6:latest
+          args:
+            - run
+            - /scripts/k6-script.js
+          volumeMounts:
+            - name: k6-script-volume
+              mountPath: /scripts/k6-script.js
+              subPath: k6-script.js
+      restartPolicy: Never
+      volumes:
+        - name: k6-script-volume
+          configMap:
+            name: k6-script
+            items:
+              - key: k6-script.js
+                path: k6-script.js

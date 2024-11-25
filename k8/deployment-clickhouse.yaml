@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clickhouse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: clickhouse
+  template:
+    metadata:
+      labels:
+        app: clickhouse
+    spec:
+      containers:
+        - name: clickhouse
+          image: clickhouse/clickhouse-server:23.7
+          command: ["/bin/sh", "/docker-entrypoint-initdb.d/entrypoint.sh"]
+          ports:
+            - containerPort: 8123
+            - containerPort: 9000
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/clickhouse-server/config.xml
+              subPath: config.xml
+            - name: users-volume
+              mountPath: /etc/clickhouse-server/users.xml
+              subPath: users.xml
+            - name: clickhouse-data
+              mountPath: /var/lib/clickhouse
+            - name: init-script-volume
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: config-volume
+          configMap:
+            name: clickhouse-config
+            items:
+              - key: config.xml
+                path: config.xml
+        - name: users-volume
+          configMap:
+            name: clickhouse-users
+            items:
+              - key: users.xml
+                path: users.xml
+        - name: clickhouse-data
+          persistentVolumeClaim:
+            claimName: clickhouse-data-pvc
+        - name: init-script-volume
+          configMap:
+            name: clickhouse-init-script
+            defaultMode: 0755
